@@ -1,0 +1,75 @@
+#docker-compose.yaml
+version: '3.8'
+x-airflow-common:
+  &airflow-common
+  #image: apache/airflow:2.7.1
+  build: .
+  # --- BU İKİ SATIRI EKLE ---
+  ipc: host
+  shm_size: '2gb'
+
+  environment:
+    &airflow-common-env
+    AIRFLOW__CORE__EXECUTOR: LocalExecutor
+    AIRFLOW__DATABASE__SQL_ALCHEMY_CONN: postgresql+psycopg2://airflow:airflow@postgres/airflow
+    AIRFLOW__CORE__FERNET_KEY: 'fbZ1YgEBm6ChbYgEBm6ChbYgEBm6ChbYgEBm6ChbY='
+    AIRFLOW__CORE__LOAD_EXAMPLES: 'False'
+    AIRFLOW__CORE__DAGS_ARE_PAUSED_AT_CREATION: 'true'   # ← BURAYA
+    # Doğru yer burası: Ortak çevre değişkenlerinin içine ekledik
+    _PIP_ADDITIONAL_REQUIREMENTS: "-r /opt/airflow/requirements.txt"
+    CUSTOMER_DATA_YOLU: "/opt/airflow/data/customers.csv"
+    PRODUCT_DATA_YOLU: "/opt/airflow/data/products.csv"
+    LOG_YOLU: "/opt/airflow/logs/trendyol_satici_final.log"
+
+    # --- ŞİFRELERİ YUKARIYA YAZMAK YERİNE BU İKİ SATIRI EKLE ---
+  env_file:
+    - .env
+
+  volumes:
+      - ./dags:/opt/airflow/dags
+      - ./logs:/opt/airflow/logs
+      - ./plugins:/opt/airflow/plugins
+      - ./src:/opt/airflow/scripts
+      - ./data:/opt/airflow/data  
+      - ./requirements.txt:/opt/airflow/requirements.txt
+  depends_on:
+    postgres:
+      condition: service_healthy
+
+services:
+  postgres:
+    image: postgres:13
+    environment:
+      POSTGRES_USER: airflow
+      POSTGRES_PASSWORD: airflow
+      POSTGRES_DB: airflow
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U airflow"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  airflow-init:
+    <<: *airflow-common
+    command: version
+    environment:
+      <<: *airflow-common-env
+      _AIRFLOW_DB_UPGRADE: 'true'
+      _AIRFLOW_WWW_USER_CREATE: 'true'
+      _AIRFLOW_WWW_USER_USERNAME: airflow
+      _AIRFLOW_WWW_USER_PASSWORD: airflow
+
+  airflow-webserver:
+    <<: *airflow-common
+    command: webserver
+    ports:
+      - "8080:8080"
+    restart: on-failure # <-- always yerine bunu yaz
+
+  airflow-scheduler:
+    <<: *airflow-common
+    command: scheduler
+    restart: on-failure # <-- always yerine bunu yaz
+
+volumes:
+  e_ticaret_verileri:
