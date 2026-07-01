@@ -4,7 +4,7 @@ from airflow import DAG
 from airflow.operators.bash import BashOperator
 
 with DAG(
-    dag_id='saatlik_customers_calistirici',
+    dag_id='customers_calistirici',
     description='Her 3 dakikada bir harici scripti calistirir',
 
     schedule_interval='*/3 * * * *',

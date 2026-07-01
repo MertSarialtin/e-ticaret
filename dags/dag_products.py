@@ -5,7 +5,7 @@ from airflow.operators.bash import BashOperator
 
 # DAG'ı tanımlıyoruz
 with DAG(
-    dag_id='gunluk_products_calistirici', #apache airflow da görünür 
+    dag_id='products_calistirici', #apache airflow da görünür 
     description='Her 1 saatte bir harici scripti calistirir', # kendine aciklama
     
     # 1. ZAMANLAMA: Her gün saat 12:00'de çalışması için iCal/Cron mantığı kullanıyoruz
