@@ -9,22 +9,29 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     unzip \
     xvfb \
     libnss3 \
+    libnspr4 \
     libxss1 \
     libasound2 \
     libxi6 \
     libatk1.0-0 \
     libatk-bridge2.0-0 \
     libcups2 \
+    libdrm2 \
     libxkbcommon0 \
     libgbm1 \
     libcairo2 \
     libpango-1.0-0 \
     libpangocairo-1.0-0 \
     libxcomposite1 \
+    libxdamage1 \
+    libxfixes3 \
     libxrandr2 \
+    libxext6 \
+    libx11-6 \
     libatspi2.0-0 \
     libgtk-3-0 \
     fonts-liberation \
+    ca-certificates \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 

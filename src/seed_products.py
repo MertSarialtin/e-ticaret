@@ -1,4 +1,5 @@
 #seed_products.py
+from pandas import options
 import undetected_chromedriver as uc
 import tls_client
 import time
@@ -48,18 +49,21 @@ def cookie_yenile():
     driver = None
     try:
         options = uc.ChromeOptions()
-        
-        # Docker içinde çalışabilmesi için bu parametreler ŞARTTIR:
-        options.add_argument("--headless") # <-- Ekranı kapattık, Docker'da çökmeyecek
-        options.add_argument("--no-sandbox")
-        options.add_argument("--disable-dev-shm-usage")
-        options.add_argument("--disable-gpu") # GPU donanım hızlandırmayı kapat
+
+# 🟢 Docker içinde çalışabilmesi için bu parametreler ŞARTTIR:
+        options.add_argument("--headless")              # Başsız mod (Ekransız)
+        options.add_argument("--no-sandbox")            # Docker içinde root yetki çakışmalarını önler
+        options.add_argument("--disable-dev-shm-usage") # /dev/shm bellek yetersizliği çökmelerini engeller
+        options.add_argument("--disable-gpu")            # GPU donanım hızlandırmayı kapatır
+
+# 🔵 STABİLİTE VE TESPİT ENGELLEYİCİ EKSTRALAR
         options.add_argument("--window-size=1400,900")
         options.add_argument(f"user-agent={SABIT_USER_AGENT}")
+        options.add_argument("--disable-extensions")     # Eklentileri kapatarak yükü azaltır
 
-        # Bildirimleri otomatik engelle (Sol üstte donup kalmasın)
-        prefs = {"profile.default_content_setting_values.notifications": 2}
-        options.add_experimental_option("prefs", prefs)
+# 🟡 BİLDİRİMLERİ GÜVENLİ ŞEKİLDE ENGELLEME (uc uyumlu yöntem)
+        options.user_data_dir = "/tmp/chrome_user_data" # Docker içinde çakışmaları önlemek için geçici profil alanı
+        options.arguments.extend(["--disable-notifications"])
 
         driver = uc.Chrome(options=options, version_main=149)
         
